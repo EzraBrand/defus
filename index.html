@@ -371,6 +371,8 @@ function start(RAW) {
     s = (s || "").normalize("NFKD").replace(/[֑-ׇ̀-ͯ]/g, "").toLowerCase();
     s = s.replace(/[ךםןףץ]/g, m => FOLD[m]).replace(/[״׳"'ʼʻ`’]/g, "");
     s = s.replace(/ch/g, "kh").replace(/tz/g, "ts").replace(/w/g, "v").replace(/ph/g, "f");
+    // ktiv male / haser: drop ו and י after another Hebrew letter (נופת = נפת, יוסיפון = יוספון)
+    s = s.replace(/([א-ת])[וי]+/g, "$1");
     return s.replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   }
   for (const e of ED) {

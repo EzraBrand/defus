@@ -23,11 +23,12 @@ allows outside viewers to load its IIIF manifests (Internet Archive, MDZ).
 
 ## Status
 
-A prototype with all in-scope records of the inventory so far: 29,504 works in
-38,105 editions (62,478 scanned copies; single periodical issues and known
+A prototype with all in-scope records of the inventory so far: 29,441 works in
+38,078 editions (62,478 scanned copies; single periodical issues and known
 manuscripts left out). Volumes of one set are one edition; editions are grouped
 into works by uniform titles, a list of canonical works and matching title and
-author in Hebrew or Latin letters. Works or editions, cards or list. The inventory, its harvesters and the build scripts are in a separate
+author in Hebrew or Latin letters, ignoring plene/defective spelling
+(נופת = נפת). Works or editions, cards or list. The inventory, its harvesters and the build scripts are in a separate
 (private) repository, `hebrew-print-inventory`: `portal/export_sample.py`
 writes the data, `portal/build_site.py` writes this site.
 
