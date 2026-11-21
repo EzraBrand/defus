@@ -143,7 +143,7 @@ button, input, select { font: inherit; color: inherit; }
 .meta { min-width: 0; display: grid; gap: 4px; align-content: start; }
 .meta .t-he { font-family: var(--f-heb); font-size: 19px; line-height: 1.25; direction: rtl; text-align: right; font-weight: 500; overflow-wrap: anywhere; }
 .meta .t-ro { font-family: var(--f-display); font-size: 15.5px; line-height: 1.3; overflow-wrap: anywhere; }
-.meta .t-ro.main { font-size: 18px; font-weight: 500; }
+.meta .t-ro.t-main { font-size: 18px; font-weight: 500; }
 .meta .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
 .copies { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; align-items: center; }
 .src { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; background: var(--surface); white-space: nowrap; }
@@ -151,6 +151,32 @@ button, input, select { font: inherit; color: inherit; }
 .tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; }
 .tag.gold { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: var(--gold-soft); }
 .empty { padding: 40px 0; color: var(--muted); }
+
+/* view switch */
+.viewbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; cursor: pointer; font-size: 14px; }
+.seg button + button { border-inline-start: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+/* list view: one row per edition */
+.list { display: grid; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.lrow { display: grid; grid-template-columns: 56px minmax(0, 2.6fr) minmax(0, 1.2fr) minmax(0, .9fr) 90px minmax(0, 1.1fr); gap: 12px; align-items: start; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: start; width: 100%; cursor: pointer; font-size: 14px; }
+.lrow:last-child { border-bottom: 0; }
+.lrow:not(.lhead):hover { background: var(--sunk); }
+.lhead { cursor: default; background: var(--sunk); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; padding-block: 7px; }
+.l-year { font-family: var(--f-mono); font-size: 13px; color: var(--muted); padding-top: 2px; }
+.l-title { display: grid; gap: 1px; min-width: 0; }
+.l-title .t-he { font-family: var(--f-heb); font-size: 16.5px; direction: rtl; text-align: right; font-weight: 500; overflow-wrap: anywhere; }
+.l-title .t-ro { font-family: var(--f-display); font-size: 14px; overflow-wrap: anywhere; color: var(--ink); }
+.l-title .t-ro.t-main { font-size: 15.5px; font-weight: 500; }
+.l-sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; min-width: 0; }
+.l-copies { display: flex; gap: 4px; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .lhead { display: none; }
+  .lrow { grid-template-columns: 48px minmax(0, 1fr); }
+  .lrow .l-sub, .lrow .l-copies { grid-column: 2; }
+}
 .more-results { margin: 18px auto 0; display: block; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
 
 /* drawer */
@@ -214,19 +240,26 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     </div>
     <div class="results-head">
       <h2 id="resTitle">Editions</h2>
+      <div class="viewbar">
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" data-view="cards" aria-pressed="true">Cards</button>
+        <button type="button" data-view="list" aria-pressed="false">List</button>
+      </div>
       <label>Sort <select id="sort">
         <option value="year">Oldest first</option>
         <option value="year-desc">Newest first</option>
         <option value="copies">Most copies</option>
         <option value="title">Title</option>
       </select></label>
+      </div>
     </div>
     <div class="chips" id="chips"></div>
     <div class="grid" id="grid"></div>
     <button class="more-results" id="more" hidden>Show more</button>
     <footer>
-      This prototype shows a sample of <span id="nEd"></span> editions from an inventory of over
-      100,000 records harvested from HathiTrust, the Internet Archive, the Bavarian State Library (MDZ),
+      This prototype shows <span id="nEd"></span> editions: every in-scope record of the inventory
+      so far, without single periodical issues and known manuscripts, from over 100,000 records
+      harvested from HathiTrust, the Internet Archive, the Bavarian State Library (MDZ),
       UB Frankfurt and the National Library of Israel (harvests still running). Copies of one edition
       are grouped by shared catalogue numbers and by matching title, place and year; these groups are
       first-pass and may be wrong. The best copy is the one with open IIIF images, open rights and the
@@ -256,7 +289,36 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
 document.addEventListener("error", ev => {
   if (ev.target && ev.target.classList && ev.target.classList.contains("cover")) ev.target.remove();
 }, true);
-function start(ED) {
+// compact data (v2): arrays; links, manifests and covers are rebuilt from library + id
+function expand(d) {
+  const S = d.src;
+  const RC = [["pd", ""], ["pdus", ""], ["", ""], ["", ""], ["", "lending library only"]];
+  return d.e.map((r, i) => {
+    const copies = (r[9] || []).map(c => {
+      const source = S[c[0]], id = String(c[1] || "");
+      const [rights, access] = RC[c[5] || 0];
+      let url = "", manifest = "";
+      if (source === "internet_archive") { url = "https://archive.org/details/" + id; manifest = "https://iiif.archive.org/iiif/3/" + id + "/manifest.json"; }
+      else if (source === "hathitrust") { url = c[6] ? "https://catalog.hathitrust.org/Record/" + c[6] : "https://babel.hathitrust.org/cgi/pt?id=" + id; }
+      else if (source === "mdz") { url = "https://www.digitale-sammlungen.de/en/details/" + id; manifest = "https://api.digitale-sammlungen.de/iiif/presentation/v2/" + id + "/manifest"; }
+      else if (source === "frankfurt") { url = "https://sammlungen.ub.uni-frankfurt.de/content/titleinfo/" + id; manifest = "https://sammlungen.ub.uni-frankfurt.de/i3f/v20/" + id + "/manifest"; }
+      else if (source === "nli") { url = "https://www.nli.org.il/en/books/NNL_ALEPH" + id + "/NLI"; manifest = "https://iiif.nli.org.il/IIIFv21/" + id + "/manifest"; }
+      return { source, id, volume: c[2] || "", pages: c[3] || null, ppi: c[4] || "", rights, access, manifest, url };
+    });
+    const ia = copies.find(c => c.source === "internet_archive");
+    const mdz = copies.find(c => c.source === "mdz" && c.id.startsWith("bsb"));
+    return {
+      n: i + 1, title_he: r[0] || "", title: r[1] || "", author: r[2] || "", place: r[3] || "",
+      place_norm: r[4] || "", year: r[5] || null, lang: r[6] || "",
+      scope: r[7] ? "judaica_other_lang" : "hebrew_script", subjects: r[8] || "", copies,
+      thumb: ia ? "https://archive.org/services/img/" + ia.id
+        : mdz ? "https://api.digitale-sammlungen.de/iiif/image/v2/" + mdz.id + "_00005/full/,200/0/default.jpg" : "",
+      thumb_src: ia ? "internet_archive" : mdz ? "mdz" : ""
+    };
+  });
+}
+function start(RAW) {
+  const ED = Array.isArray(RAW) ? RAW : expand(RAW);
   const SRC = {
     hathitrust: "HathiTrust", internet_archive: "Internet Archive", frankfurt: "UB Frankfurt",
     mdz: "Bavarian State Library", nli: "National Library of Israel"
@@ -311,15 +373,25 @@ function start(ED) {
     ["centF", "Century"], ["placeF", "Place of printing"], ["rightsBest", "Rights (best copy)"], ["copyBand", "Copies"]
   ];
   for (const e of ED) e.centF = e.cent[2];
-  const state = { q: "", f: {}, range: null, sort: "year", shown: 24, open: {} };
+  let savedView = "cards";
+  try { savedView = localStorage.getItem("defus-view") === "list" ? "list" : "cards"; } catch (_) {}
+  const state = { q: "", f: {}, range: null, sort: "year", view: savedView, shown: savedView === "list" ? 100 : 24, open: {} };
   FACETS.forEach(([k]) => state.f[k] = new Set());
 
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const vals = (e, k) => Array.isArray(e[k]) ? e[k] : [e[k]];
 
+  // the text match is computed once per render (applyQuery), not once per facet
+  let lastQ = null;
+  function applyQuery() {
+    if (state.q === lastQ) return;
+    lastQ = state.q;
+    const terms = state.q ? norm(state.q).split(" ").filter(Boolean) : [];
+    for (const e of ED) e._q = !terms.length || terms.every(t => e.hay.includes(t));
+  }
   function matches(e, skip) {
-    if (state.q) { const terms = norm(state.q).split(" "); if (!terms.every(t => e.hay.includes(t))) return false; }
+    if (!e._q) return false;
     if (state.range && skip !== "range" && !(e.year >= state.range[0] && e.year <= state.range[1])) return false;
     for (const [k] of FACETS) {
       if (k === skip || !state.f[k].size) continue;
@@ -388,11 +460,26 @@ function start(ED) {
     const sub = [e.author, [e.place, e.year].filter(Boolean).join(", "), e.langF].filter(Boolean).map(esc).join(" · ");
     const titles = e.title_he
       ? `<div class="t-he">${esc(e.title_he)}</div>${e.title && e.title !== e.title_he ? `<div class="t-ro">${esc(e.title)}</div>` : ""}`
-      : `<div class="t-ro main">${esc(e.title)}</div>`;
+      : `<div class="t-ro t-main">${esc(e.title)}</div>`;
     return `<button class="card" data-n="${e.n}">${spine(e)}<div class="meta">${titles}<div class="sub">${sub}</div>
       <div class="copies">${Object.entries(counts).map(([s, n]) => `<span class="src"><i style="background:var(--src-${s})"></i>${SRC[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}
       ${e.iiif ? `<span class="tag">IIIF</span>` : ""}${e.copies.length > 1 ? `<span class="tag gold">${e.copies.length} copies</span>` : ""}</div></div></button>`;
   }
+
+  const LIST_HEAD = `<div class="lrow lhead" aria-hidden="true"><span>Year</span><span>Title</span><span>Author</span><span>Place</span><span>Language</span><span>Copies</span></div>`;
+  function row(e) {
+    const counts = {};
+    e.copies.forEach(c => counts[c.source] = (counts[c.source] || 0) + 1);
+    const titles = e.title_he
+      ? `<span class="t-he">${esc(e.title_he)}</span>${e.title && e.title !== e.title_he ? `<span class="t-ro">${esc(e.title)}</span>` : ""}`
+      : `<span class="t-ro t-main">${esc(e.title)}</span>`;
+    return `<button class="lrow" data-n="${e.n}"><span class="l-year">${e.year || "n.d."}</span>
+      <span class="l-title">${titles}</span><span class="l-sub">${esc(e.author)}</span>
+      <span class="l-sub">${esc(e.place_norm || e.place)}</span><span class="l-sub">${esc(e.langF)}</span>
+      <span class="l-copies">${Object.entries(counts).map(([s, n]) => `<span class="src" title="${SRC[s]}"><i style="background:var(--src-${s})"></i>${SHORT[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}</span></button>`;
+  }
+  const SHORT = { hathitrust: "HT", internet_archive: "IA", frankfurt: "UBF", mdz: "BSB", nli: "NLI" };
+  const PAGE = { cards: 24, list: 100 };
 
   function sorted(list) {
     const L = list.slice();
@@ -404,13 +491,18 @@ function start(ED) {
   }
 
   function render() {
+    applyQuery();
     const list = ED.filter(e => matches(e));
     const forTimeline = ED.filter(e => matches(e, "range"));
     renderFacets();
     renderTimeline(forTimeline);
     const L = sorted(list);
-    $("grid").innerHTML = L.length ? L.slice(0, state.shown).map(card).join("")
+    const listView = state.view === "list";
+    $("grid").className = listView ? "list" : "grid";
+    $("grid").innerHTML = L.length
+      ? (listView ? LIST_HEAD : "") + L.slice(0, state.shown).map(listView ? row : card).join("")
       : `<p class="empty">No editions match. Remove a filter or try another spelling.</p>`;
+    document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
     $("more").hidden = L.length <= state.shown;
     $("resTitle").textContent = `${L.length} edition${L.length === 1 ? "" : "s"}`;
     const chips = [];
@@ -461,16 +553,21 @@ function start(ED) {
 
   // ---- events
   let t;
-  $("q").addEventListener("input", ev => { clearTimeout(t); t = setTimeout(() => { state.q = ev.target.value.trim(); state.shown = 24; render(); }, 120); });
+  $("q").addEventListener("input", ev => { clearTimeout(t); t = setTimeout(() => { state.q = ev.target.value.trim(); state.shown = PAGE[state.view]; render(); }, 120); });
   $("sort").addEventListener("change", ev => { state.sort = ev.target.value; render(); });
-  $("more").addEventListener("click", () => { state.shown += 24; render(); });
+  $("more").addEventListener("click", () => { state.shown += PAGE[state.view]; render(); });
   $("railToggle").addEventListener("click", ev => {
     const r = $("rail"); const o = r.dataset.open !== "true"; r.dataset.open = o; ev.currentTarget.setAttribute("aria-expanded", o);
   });
   document.addEventListener("click", ev => {
     const b = ev.target.closest("button, g.bar");
     if (!b) { if (ev.target === $("scrim")) closeDrawer(); return; }
-    if (b.dataset.k) { const s = state.f[b.dataset.k]; const v = b.dataset.v; s.has(v) ? s.delete(v) : s.add(v); state.shown = 24; render(); return; }
+    if (b.dataset.view) {
+      state.view = b.dataset.view; state.shown = PAGE[state.view];
+      try { localStorage.setItem("defus-view", state.view); } catch (_) {}
+      render(); return;
+    }
+    if (b.dataset.k) { const s = state.f[b.dataset.k]; const v = b.dataset.v; s.has(v) ? s.delete(v) : s.add(v); state.shown = PAGE[state.view]; render(); return; }
     if (b.dataset.more) { state.open[b.dataset.more] = !state.open[b.dataset.more]; renderFacets(); return; }
     if (b.dataset.clear) {
       if (b.dataset.clear === "q" || b.dataset.clear === "all") { state.q = ""; $("q").value = ""; }
@@ -479,7 +576,7 @@ function start(ED) {
       render(); return;
     }
     if (b.id === "clearRange") { state.range = null; render(); return; }
-    if (b.matches("g.bar")) { const a = +b.dataset.a; state.range = state.range && state.range[0] === a ? null : [a, +b.dataset.b]; state.shown = 24; render(); return; }
+    if (b.matches("g.bar")) { const a = +b.dataset.a; state.range = state.range && state.range[0] === a ? null : [a, +b.dataset.b]; state.shown = PAGE[state.view]; render(); return; }
     if (b.dataset.n) { openDrawer(+b.dataset.n); return; }
     if (b.id === "close") { closeDrawer(); return; }
     if (b.dataset.copy) {

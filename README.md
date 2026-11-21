@@ -23,8 +23,9 @@ allows outside viewers to load its IIIF manifests (Internet Archive, MDZ).
 
 ## Status
 
-A prototype with a sample of 11,150 editions from an inventory of over 100,000
-records. The inventory, its harvesters and the build scripts are in a separate
+A prototype with all 45,470 in-scope editions of the inventory so far (59,351
+scanned copies; single periodical issues and known manuscripts left out), from an
+inventory of over 100,000 records. Cards or list view. The inventory, its harvesters and the build scripts are in a separate
 (private) repository, `hebrew-print-inventory`: `portal/export_sample.py`
 writes the data, `portal/build_site.py` writes this site.
 
