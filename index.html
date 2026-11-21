@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Open scans of printed Hebrew books and Judaica, 1469-1920, gathered from the libraries that hold them.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231c4f8c'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='serif'%3E%D7%93%3C/text%3E%3C/svg%3E">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Defus Print Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: a catalogue hall. Filter rail on the left, a grid of edition "spines"
+   on the right, an edition drawer that lists every known copy. */
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --sunk: #eaeef4;
+  --ink: #16202c;
+  --muted: #586374;
+  --line: #d9dfe8;
+  --accent: #1c4f8c;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2ebf7;
+  --gold: #9a6a12;
+  --gold-soft: #f6ecd8;
+  --warn: #9b3d2b;
+  --c-early: #6b3e2e;
+  --c-17: #2f5d50;
+  --c-18: #3c4f7d;
+  --c-19: #55406e;
+  --c-20: #4c5560;
+  --src-hathitrust: #b45309;
+  --src-internet_archive: #1f6f8b;
+  --src-frankfurt: #6b4c9a;
+  --src-mdz: #2f7a3e;
+  --src-nli: #1c4f8c;
+  --shadow: 0 1px 2px rgba(22, 32, 44, .06), 0 4px 14px rgba(22, 32, 44, .06);
+  --f-display: "Frank Ruhl Libre", "Times New Roman", serif;
+  --f-body: "IBM Plex Sans", "IBM Plex Sans Hebrew", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-heb: "Frank Ruhl Libre", "IBM Plex Sans Hebrew", "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131a; --surface: #151c26; --sunk: #1b2430; --ink: #e6ebf2; --muted: #9aa6b6;
+    --line: #283342; --accent: #82b2ee; --accent-ink: #0b1420; --accent-soft: #1a2a3e;
+    --gold: #dcae55; --gold-soft: #2e2615; --warn: #e48b77;
+    --c-early: #8a5a46; --c-17: #47806f; --c-18: #5a6fa3; --c-19: #7a62a0; --c-20: #6b7581;
+    --src-hathitrust: #e3964a; --src-internet_archive: #5bb3cf; --src-frankfurt: #a990d6;
+    --src-mdz: #6cc07c; --src-nli: #82b2ee;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131a; --surface: #151c26; --sunk: #1b2430; --ink: #e6ebf2; --muted: #9aa6b6;
+  --line: #283342; --accent: #82b2ee; --accent-ink: #0b1420; --accent-soft: #1a2a3e;
+  --gold: #dcae55; --gold-soft: #2e2615; --warn: #e48b77;
+  --c-early: #8a5a46; --c-17: #47806f; --c-18: #5a6fa3; --c-19: #7a62a0; --c-20: #6b7581;
+  --src-hathitrust: #e3964a; --src-internet_archive: #5bb3cf; --src-frankfurt: #a990d6;
+  --src-mdz: #6cc07c; --src-nli: #82b2ee;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+a { color: var(--accent); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.heb { font-family: var(--f-heb); direction: rtl; unicode-bidi: isolate; }
+
+/* header */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-inner, .main { max-width: 1360px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top-inner { padding-block: 18px 16px; display: grid; gap: 14px; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand h1 { font-family: var(--f-display); font-weight: 700; font-size: 30px; margin: 0; letter-spacing: .2px; }
+.brand h1 .heb { font-weight: 500; margin-inline-start: 6px; color: var(--accent); }
+.brand p { margin: 0; color: var(--muted); font-size: 14px; }
+.proto { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--gold); background: var(--gold-soft); padding: 2px 8px; border-radius: 3px; align-self: center; }
+.searchrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.search { flex: 1 1 360px; display: flex; align-items: center; background: var(--sunk); border: 1px solid var(--line); border-radius: 6px; padding: 0 12px; min-width: 0; }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 11px 6px; font-size: 16px; outline: none; }
+.search svg { flex: none; color: var(--muted); }
+.stats { display: flex; gap: 18px; color: var(--muted); font-size: 13px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.stats b { color: var(--ink); font-weight: 600; }
+
+/* layout */
+.main { padding-block: 20px 48px; display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 28px; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+/* filter rail */
+.rail { display: grid; gap: 18px; align-content: start; }
+.rail-toggle { display: none; }
+@media (max-width: 860px) {
+  .rail-toggle { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+  .rail[data-open="false"] .facet { display: none; }
+}
+.facet h3 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+.facet ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.facet li button { width: 100%; display: flex; justify-content: space-between; gap: 10px; align-items: center; text-align: start; background: none; border: 0; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+.facet li button:hover { background: var(--sunk); }
+.facet li button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.facet li .n { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.facet li button[aria-pressed="true"] .n { color: var(--accent); }
+.facet .more { background: none; border: 0; color: var(--accent); font-size: 13px; padding: 4px 8px; cursor: pointer; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: 7px; vertical-align: 1px; }
+
+/* timeline */
+.timeline { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px 8px; }
+.timeline-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.timeline-head b { color: var(--ink); font-weight: 600; }
+.timeline svg { display: block; width: 100%; height: 92px; }
+.timeline .bar { cursor: pointer; }
+.timeline .bar:hover rect.b { fill: var(--accent); }
+.clear-range { background: none; border: 0; color: var(--accent); cursor: pointer; font-size: 13px; padding: 0; }
+
+/* results */
+.results-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 18px 0 12px; }
+.results-head h2 { margin: 0; font-family: var(--f-display); font-weight: 500; font-size: 24px; }
+.results-head select { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 10px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); border: 0; border-radius: 999px; padding: 4px 10px 4px 12px; font-size: 13px; cursor: pointer; }
+.chip.clear { background: none; color: var(--muted); text-decoration: underline; padding-inline: 4px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+@media (max-width: 420px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.card { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; cursor: pointer; text-align: start; width: 100%; box-shadow: none; transition: box-shadow .15s, border-color .15s; }
+.card:hover { box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.spine { position: relative; aspect-ratio: 3 / 4.3; max-width: 100%; border-radius: 3px 5px 5px 3px; color: #f7f2e8; display: flex; flex-direction: column; justify-content: space-between; padding: 8px 7px 7px; overflow: hidden; background: var(--c-19); box-shadow: inset 4px 0 0 rgba(0,0,0,.18), inset -1px 0 0 rgba(255,255,255,.08); }
+.spine::after { content: ""; position: absolute; inset: 6px 5px; border: 1px solid rgba(247, 242, 232, .35); border-radius: 2px; pointer-events: none; }
+.spine img.cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; background: var(--sunk); }
+.spine:has(img.cover)::after { display: none; }
+.spine .sw { font-family: var(--f-heb); font-size: 21px; line-height: 1.05; text-align: center; direction: rtl; word-break: break-word; }
+.spine .sw.lat { font-family: var(--f-display); font-size: 15px; direction: ltr; }
+.spine .sy { font-family: var(--f-mono); font-size: 11px; text-align: center; opacity: .85; }
+.meta { min-width: 0; display: grid; gap: 4px; align-content: start; }
+.meta .t-he { font-family: var(--f-heb); font-size: 19px; line-height: 1.25; direction: rtl; text-align: right; font-weight: 500; overflow-wrap: anywhere; }
+.meta .t-ro { font-family: var(--f-display); font-size: 15.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.meta .t-ro.main { font-size: 18px; font-weight: 500; }
+.meta .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.copies { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; align-items: center; }
+.src { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; background: var(--surface); white-space: nowrap; }
+.src i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; }
+.tag.gold { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: var(--gold-soft); }
+.empty { padding: 40px 0; color: var(--muted); }
+.more-results { margin: 18px auto 0; display: block; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; background: rgba(10, 15, 22, .45); z-index: 20; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(640px, 100%); background: var(--surface); z-index: 21; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,.2); padding: calc(18px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) 20px; display: grid; gap: 16px; align-content: start; }
+.drawer-head { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.close { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-size: 18px; line-height: 1; }
+.drawer h2 { margin: 0; font-family: var(--f-heb); font-weight: 500; font-size: 26px; line-height: 1.25; direction: rtl; text-align: right; }
+.drawer .ro { font-family: var(--f-display); font-size: 18px; margin: 4px 0 0; }
+dl.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0; font-size: 14px; }
+dl.facts dt { color: var(--muted); }
+dl.facts dd { margin: 0; overflow-wrap: anywhere; }
+.copies-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.copies-table table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 520px; }
+.copies-table th, .copies-table td { text-align: start; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.copies-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; background: var(--sunk); }
+.copies-table tr:last-child td { border-bottom: 0; }
+.copies-table tr.best td { background: color-mix(in srgb, var(--gold-soft) 70%, transparent); }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
+.links { display: flex; gap: 10px; flex-wrap: wrap; }
+.links a, .links button { font-size: 13px; }
+.links button { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
+.rights-open { color: var(--src-mdz); }
+.rights-limited { color: var(--warn); }
+.note { font-size: 13px; color: var(--muted); background: var(--sunk); border-radius: 8px; padding: 10px 12px; }
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 28px; padding-top: 14px; max-width: 70ch; }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1>Defus <span class="heb">דפוס</span></h1>
+      <span class="proto">Prototype</span>
+      <p>Open scans of printed Hebrew books and Judaica, 1469–1920, gathered from the libraries that hold them.</p>
+    </div>
+    <div class="searchrow">
+      <label class="search" for="q">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="q" type="search" placeholder="Title, author or place, in Hebrew or Latin letters (e.g. שאלות ותשובות, Vilna, Perets)" autocomplete="off">
+      </label>
+      <div class="stats" id="stats"></div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <aside class="rail" id="rail" data-open="false" aria-label="Filters">
+    <button class="rail-toggle" id="railToggle" aria-expanded="false" aria-controls="rail">Filters</button>
+    <div id="facets" style="display:grid; gap:18px"></div>
+  </aside>
+
+  <section aria-label="Results" style="min-width:0">
+    <div class="timeline">
+      <div class="timeline-head"><span><b id="tlCount"></b> editions by year of printing</span><span id="tlRange"></span></div>
+      <svg id="tl" viewBox="0 0 900 92" preserveAspectRatio="none" role="img" aria-label="Number of editions per 25 years"></svg>
+    </div>
+    <div class="results-head">
+      <h2 id="resTitle">Editions</h2>
+      <label>Sort <select id="sort">
+        <option value="year">Oldest first</option>
+        <option value="year-desc">Newest first</option>
+        <option value="copies">Most copies</option>
+        <option value="title">Title</option>
+      </select></label>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid"></div>
+    <button class="more-results" id="more" hidden>Show more</button>
+    <footer>
+      This prototype shows a sample of <span id="nEd"></span> editions from an inventory of over
+      100,000 records harvested from HathiTrust, the Internet Archive, the Bavarian State Library (MDZ),
+      UB Frankfurt and the National Library of Israel (harvests still running). Copies of one edition
+      are grouped by shared catalogue numbers and by matching title, place and year; these groups are
+      first-pass and may be wrong. The best copy is the one with open IIIF images, open rights and the
+      highest resolution. Cover images load directly from the Internet Archive and the Bavarian
+      State Library. Data: CC0 catalogue records of the holding libraries.
+      Code and data: <a href="https://github.com/EzraBrand/defus">github.com/EzraBrand/defus</a>.
+    </footer>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="dTitle"></aside>
+
+<script id="data" type="application/json"></script>
+<script>
+(function () {
+  // the Artifact build embeds the data; the website loads it from data/editions.json
+  const raw = document.getElementById("data").textContent.trim();
+  if (raw && !raw.startsWith("/*")) { start(JSON.parse(raw)); return; }
+  document.getElementById("grid").innerHTML = '<p class="empty">Loading editions…</p>';
+  fetch("data/editions.json")
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(start)
+    .catch(err => { document.getElementById("grid").innerHTML = '<p class="empty">Could not load the editions (' + err.message + '). Reload the page to try again.</p>'; });
+})();
+// a cover that does not load (blocked, missing page) is removed; the spine shows instead
+document.addEventListener("error", ev => {
+  if (ev.target && ev.target.classList && ev.target.classList.contains("cover")) ev.target.remove();
+}, true);
+function start(ED) {
+  const SRC = {
+    hathitrust: "HathiTrust", internet_archive: "Internet Archive", frankfurt: "UB Frankfurt",
+    mdz: "Bavarian State Library", nli: "National Library of Israel"
+  };
+  const LANG = { heb: "Hebrew", yid: "Yiddish", lad: "Ladino", arc: "Aramaic", jrb: "Judeo-Arabic",
+    jpr: "Judeo-Persian", eng: "English", ger: "German", lat: "Latin", fre: "French", ita: "Italian",
+    dut: "Dutch", spa: "Spanish", rum: "Romanian", pol: "Polish", rus: "Russian" };
+  const CENT = [[1469, 1599, "15th–16th c.", "--c-early"], [1600, 1699, "17th c.", "--c-17"],
+    [1700, 1799, "18th c.", "--c-18"], [1800, 1899, "19th c.", "--c-19"], [1900, 1920, "1900–1920", "--c-20"]];
+
+  // ---- derived fields
+  function rightsOf(c) {
+    const r = (c.rights + " " + c.access).toLowerCase();
+    if (r.includes("lending")) return ["Borrow only", "limited"];
+    if (c.rights === "pdus") return ["US only", "limited"];
+    if (c.rights === "pd" || r.includes("public domain") || r.includes("publicdomain") || r.includes("not_in_copyright")
+        || r.includes("unaware of any copyright")) return ["Open", "open"];
+    if (c.source === "internet_archive") return ["Open (no statement)", "open"];
+    return ["See manifest", "check"];
+  }
+  function score(c) {
+    const [, k] = rightsOf(c);
+    const ppi = parseInt(c.ppi) || 0;
+    return (c.manifest ? 4 : 0) + (k === "open" ? 3 : k === "check" ? 1 : 0) + (ppi >= 400 ? 1 : 0)
+      + (c.source === "hathitrust" ? -1 : 0);  // HathiTrust images sit behind a bot check
+  }
+  const FOLD = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+  function norm(s) {
+    s = (s || "").normalize("NFKD").replace(/[֑-ׇ̀-ͯ]/g, "").toLowerCase();
+    s = s.replace(/[ךםןףץ]/g, m => FOLD[m]).replace(/[״׳"'ʼʻ`’]/g, "");
+    s = s.replace(/ch/g, "kh").replace(/tz/g, "ts").replace(/w/g, "v").replace(/ph/g, "f");
+    return s.replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  }
+  for (const e of ED) {
+    for (const k of ["title_he", "title", "author", "place", "place_norm", "lang", "subjects", "thumb", "thumb_src"]) e[k] = e[k] || "";
+    for (const c of e.copies) for (const k of ["id", "volume", "ppi", "rights", "access", "manifest", "url"]) c[k] = c[k] || "";
+    e.cent =(CENT.find(c => e.year >= c[0] && e.year <= c[1]) || [0, 0, "Unknown", "--c-20"]);
+    e.srcs = [...new Set(e.copies.map(c => c.source))];
+    e.best = e.copies.slice().sort((a, b) => score(b) - score(a))[0];
+    e.rightsBest = rightsOf(e.best)[0];
+    e.iiif = e.copies.some(c => c.manifest && c.source !== "hathitrust");
+    e.copyBand = e.copies.length > 1 ? "2 or more copies" : "1 copy";
+    e.placeF = e.place_norm || "Other or unknown";
+    e.langF = LANG[e.lang] || e.lang || "Unknown";
+    e.scopeF = e.scope === "hebrew_script" ? "Hebrew script" : "Judaica, other languages";
+    e.hay = norm([e.title_he, e.title, e.author, e.place, e.place_norm, e.subjects].join(" "));
+  }
+
+  // ---- state
+  const FACETS = [
+    ["scopeF", "Collection"], ["srcs", "Library"], ["langF", "Language"],
+    ["centF", "Century"], ["placeF", "Place of printing"], ["rightsBest", "Rights (best copy)"], ["copyBand", "Copies"]
+  ];
+  for (const e of ED) e.centF = e.cent[2];
+  const state = { q: "", f: {}, range: null, sort: "year", shown: 24, open: {} };
+  FACETS.forEach(([k]) => state.f[k] = new Set());
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const vals = (e, k) => Array.isArray(e[k]) ? e[k] : [e[k]];
+
+  function matches(e, skip) {
+    if (state.q) { const terms = norm(state.q).split(" "); if (!terms.every(t => e.hay.includes(t))) return false; }
+    if (state.range && skip !== "range" && !(e.year >= state.range[0] && e.year <= state.range[1])) return false;
+    for (const [k] of FACETS) {
+      if (k === skip || !state.f[k].size) continue;
+      if (!vals(e, k).some(v => state.f[k].has(v))) return false;
+    }
+    return true;
+  }
+
+  // ---- facets
+  function renderFacets() {
+    const box = $("facets");
+    box.innerHTML = "";
+    for (const [k, label] of FACETS) {
+      const counts = new Map();
+      for (const e of ED) if (matches(e, k)) for (const v of vals(e, k)) counts.set(v, (counts.get(v) || 0) + 1);
+      for (const v of state.f[k]) if (!counts.has(v)) counts.set(v, 0);
+      let entries = [...counts.entries()];
+      if (k === "centF") entries.sort((a, b) => CENT.findIndex(c => c[2] === a[0]) - CENT.findIndex(c => c[2] === b[0]));
+      else entries.sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])));
+      const lim = state.open[k] ? 99 : 6;
+      const div = document.createElement("div");
+      div.className = "facet";
+      div.innerHTML = `<h3>${label}</h3><ul>${entries.slice(0, lim).map(([v, n]) => {
+        const on = state.f[k].has(v);
+        const name = k === "srcs" ? SRC[v] : v;
+        const dot = k === "srcs" ? `<span class="dot" style="background:var(--src-${v})"></span>`
+          : k === "centF" ? `<span class="dot" style="background:var(${(CENT.find(c => c[2] === v) || [0, 0, 0, "--c-20"])[3]})"></span>` : "";
+        return `<li><button aria-pressed="${on}" data-k="${k}" data-v="${esc(v)}"><span>${dot}${esc(name)}</span><span class="n">${n}</span></button></li>`;
+      }).join("")}</ul>${entries.length > 6 ? `<button class="more" data-more="${k}">${state.open[k] ? "Show fewer" : `Show all ${entries.length}`}</button>` : ""}`;
+      box.appendChild(div);
+    }
+  }
+
+  // ---- timeline (25-year bins, 1450-1925)
+  function renderTimeline(list) {
+    const svg = $("tl"), W = 900, H = 92, top = 6, base = 74, bins = [];
+    for (let y = 1450; y < 1925; y += 25) bins.push([y, y + 24, 0]);
+    for (const e of list) { const b = bins.find(b => e.year >= b[0] && e.year <= b[1]); if (b) b[2]++; }
+    const max = Math.max(1, ...bins.map(b => b[2])), bw = W / bins.length;
+    let s = `<line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="var(--line)" stroke-width="1"></line>`;
+    bins.forEach((b, i) => {
+      const h = b[2] ? Math.max(2, (base - top) * b[2] / max) : 0;
+      const on = state.range && state.range[0] === b[0];
+      s += `<g class="bar" data-a="${b[0]}" data-b="${b[1]}"><title>${b[0]}–${b[1]}: ${b[2]} editions</title>`
+        + `<rect x="${i * bw}" y="0" width="${bw}" height="${H}" fill="transparent"></rect>`
+        + `<rect class="b" x="${i * bw + 2}" y="${base - h}" width="${bw - 4}" height="${h}" rx="1.5" fill="${on ? "var(--accent)" : "var(--muted)"}" opacity="${on || !state.range ? 0.9 : 0.35}"></rect>`
+        + (i % 4 === 0 ? `<text x="${i * bw + 2}" y="${H - 4}" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${b[0]}</text>` : "")
+        + `</g>`;
+    });
+    svg.innerHTML = s;
+    $("tlCount").textContent = list.length;
+    $("tlRange").innerHTML = state.range ? `${state.range[0]}–${state.range[1]} <button class="clear-range" id="clearRange">Clear years</button>` : "Click a bar to filter by years";
+  }
+
+  // ---- cards
+  function spine(e) {
+    const word = (e.title_he || "").replace(/[\[\]().:,;"״׳']/g, " ").trim().split(/\s+/).slice(0, 2).join(" ");
+    const lat = !word;
+    const w = lat ? (e.title || "").split(/\s+/).slice(0, 2).join(" ") : word;
+    const img = e.thumb ? `<img class="cover" src="${esc(e.thumb)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+    return `<div class="spine" style="background:var(${e.cent[3]})">${img}<span class="sw ${lat ? "lat" : ""}">${esc(w)}</span><span class="sy">${e.year || "n.d."}</span></div>`;
+  }
+  function card(e) {
+    const counts = {};
+    e.copies.forEach(c => counts[c.source] = (counts[c.source] || 0) + 1);
+    const sub = [e.author, [e.place, e.year].filter(Boolean).join(", "), e.langF].filter(Boolean).map(esc).join(" · ");
+    const titles = e.title_he
+      ? `<div class="t-he">${esc(e.title_he)}</div>${e.title && e.title !== e.title_he ? `<div class="t-ro">${esc(e.title)}</div>` : ""}`
+      : `<div class="t-ro main">${esc(e.title)}</div>`;
+    return `<button class="card" data-n="${e.n}">${spine(e)}<div class="meta">${titles}<div class="sub">${sub}</div>
+      <div class="copies">${Object.entries(counts).map(([s, n]) => `<span class="src"><i style="background:var(--src-${s})"></i>${SRC[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}
+      ${e.iiif ? `<span class="tag">IIIF</span>` : ""}${e.copies.length > 1 ? `<span class="tag gold">${e.copies.length} copies</span>` : ""}</div></div></button>`;
+  }
+
+  function sorted(list) {
+    const L = list.slice();
+    if (state.sort === "year") L.sort((a, b) => (a.year || 9999) - (b.year || 9999));
+    if (state.sort === "year-desc") L.sort((a, b) => (b.year || 0) - (a.year || 0));
+    if (state.sort === "copies") L.sort((a, b) => b.copies.length - a.copies.length || (a.year || 0) - (b.year || 0));
+    if (state.sort === "title") L.sort((a, b) => (a.title || a.title_he).localeCompare(b.title || b.title_he));
+    return L;
+  }
+
+  function render() {
+    const list = ED.filter(e => matches(e));
+    const forTimeline = ED.filter(e => matches(e, "range"));
+    renderFacets();
+    renderTimeline(forTimeline);
+    const L = sorted(list);
+    $("grid").innerHTML = L.length ? L.slice(0, state.shown).map(card).join("")
+      : `<p class="empty">No editions match. Remove a filter or try another spelling.</p>`;
+    $("more").hidden = L.length <= state.shown;
+    $("resTitle").textContent = `${L.length} edition${L.length === 1 ? "" : "s"}`;
+    const chips = [];
+    if (state.q) chips.push(`<button class="chip" data-clear="q">“${esc(state.q)}” ✕</button>`);
+    if (state.range) chips.push(`<button class="chip" data-clear="range">${state.range[0]}–${state.range[1]} ✕</button>`);
+    for (const [k] of FACETS) for (const v of state.f[k]) chips.push(`<button class="chip" data-k="${k}" data-v="${esc(v)}">${esc(k === "srcs" ? SRC[v] : v)} ✕</button>`);
+    if (chips.length > 1) chips.push(`<button class="chip clear" data-clear="all">Remove all filters</button>`);
+    $("chips").innerHTML = chips.join("");
+    const copies = list.reduce((s, e) => s + e.copies.length, 0);
+    const libs = new Set(list.flatMap(e => e.srcs)).size;
+    $("stats").innerHTML = `<span><b>${list.length}</b> editions</span><span><b>${copies}</b> scanned copies</span><span><b>${libs}</b> libraries</span>`;
+    $("nEd").textContent = ED.length;
+  }
+
+  // ---- drawer
+  function openDrawer(n) {
+    const e = ED.find(x => x.n === n); if (!e) return;
+    const rows = e.copies.slice().sort((a, b) => score(b) - score(a)).map(c => {
+      const [rl, rk] = rightsOf(c);
+      const best = c === e.best;
+      // only libraries whose IIIF servers let other sites load the manifest (CORS):
+      // IA (tested) and MDZ (documented). Frankfurt sent no CORS header (21-Nov-2026).
+      const viewer = c.manifest && (c.source === "internet_archive" || c.source === "mdz")
+        ? `<a href="https://universalviewer.dev/uv.html#?manifest=${esc(c.manifest)}" target="_blank" rel="noopener">Viewer</a>` : "";
+      return `<tr class="${best ? "best" : ""}"><td><span class="src"><i style="background:var(--src-${c.source})"></i>${SRC[c.source]}</span>${best ? ` <span class="tag gold">Best copy</span>` : ""}<div class="mono" style="margin-top:4px">${esc(c.id)}${c.volume ? ` · ${esc(c.volume)}` : ""}</div></td>
+        <td class="num">${c.pages ? c.pages.toLocaleString() : "–"}</td><td class="num">${c.ppi ? esc(c.ppi) : "–"}</td>
+        <td class="${rk === "open" ? "rights-open" : rk === "limited" ? "rights-limited" : ""}">${rl}</td>
+        <td><div class="links">${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">Catalogue</a>` : ""}${viewer}${c.manifest ? `<button data-copy="${esc(c.manifest)}">Copy IIIF link</button>` : ""}</div></td></tr>`;
+    }).join("");
+    const d = $("drawer");
+    d.innerHTML = `<div class="drawer-head">${spine(e)}<div style="min-width:0">${e.title_he ? `<h2 id="dTitle">${esc(e.title_he)}</h2>` : ""}
+        <p class="ro" ${e.title_he ? "" : 'id="dTitle"'}>${esc(e.title)}</p></div><button class="close" id="close" aria-label="Close">✕</button></div>
+      <dl class="facts">
+        ${e.author ? `<dt>Author</dt><dd>${esc(e.author)}</dd>` : ""}
+        <dt>Printed</dt><dd>${esc([e.place, e.year].filter(Boolean).join(", ") || "Unknown")}${e.place_norm && e.place_norm !== e.place ? ` <span class="sub">(${e.place_norm})</span>` : ""}</dd>
+        <dt>Language</dt><dd>${esc(e.langF)}</dd>
+        <dt>Collection</dt><dd>${esc(e.scopeF)}</dd>
+        ${e.subjects ? `<dt>Subjects</dt><dd>${esc(e.subjects)}</dd>` : ""}
+        ${e.thumb ? `<dt>Cover image</dt><dd>${esc(SRC[e.thumb_src] || "")}</dd>` : ""}
+      </dl>
+      <div><p class="section-label">${e.copies.length} known ${e.copies.length === 1 ? "copy" : "copies"}</p>
+      <div class="copies-table"><table><thead><tr><th>Library</th><th>Pages</th><th>ppi</th><th>Rights</th><th>Open</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+      <p class="note">The best copy has open IIIF images, open rights and the highest resolution. HathiTrust page images are behind a bot check, so a HathiTrust copy is chosen only when no other copy exists. The Viewer link (Universal Viewer) is offered where the library lets outside viewers load its images (Internet Archive, Bavarian State Library); for other copies use the library's own page. Page counts come from the catalogue or the scan; ppi from the Internet Archive.</p>`;
+    d.hidden = false; $("scrim").hidden = false;
+    $("close").focus();
+  }
+  function closeDrawer() { $("drawer").hidden = true; $("scrim").hidden = true; }
+
+  // ---- events
+  let t;
+  $("q").addEventListener("input", ev => { clearTimeout(t); t = setTimeout(() => { state.q = ev.target.value.trim(); state.shown = 24; render(); }, 120); });
+  $("sort").addEventListener("change", ev => { state.sort = ev.target.value; render(); });
+  $("more").addEventListener("click", () => { state.shown += 24; render(); });
+  $("railToggle").addEventListener("click", ev => {
+    const r = $("rail"); const o = r.dataset.open !== "true"; r.dataset.open = o; ev.currentTarget.setAttribute("aria-expanded", o);
+  });
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest("button, g.bar");
+    if (!b) { if (ev.target === $("scrim")) closeDrawer(); return; }
+    if (b.dataset.k) { const s = state.f[b.dataset.k]; const v = b.dataset.v; s.has(v) ? s.delete(v) : s.add(v); state.shown = 24; render(); return; }
+    if (b.dataset.more) { state.open[b.dataset.more] = !state.open[b.dataset.more]; renderFacets(); return; }
+    if (b.dataset.clear) {
+      if (b.dataset.clear === "q" || b.dataset.clear === "all") { state.q = ""; $("q").value = ""; }
+      if (b.dataset.clear === "range" || b.dataset.clear === "all") state.range = null;
+      if (b.dataset.clear === "all") FACETS.forEach(([k]) => state.f[k].clear());
+      render(); return;
+    }
+    if (b.id === "clearRange") { state.range = null; render(); return; }
+    if (b.matches("g.bar")) { const a = +b.dataset.a; state.range = state.range && state.range[0] === a ? null : [a, +b.dataset.b]; state.shown = 24; render(); return; }
+    if (b.dataset.n) { openDrawer(+b.dataset.n); return; }
+    if (b.id === "close") { closeDrawer(); return; }
+    if (b.dataset.copy) {
+      const txt = b.dataset.copy;
+      const done = () => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy IIIF link", 1400); };
+      try { navigator.clipboard.writeText(txt).then(done, () => { b.textContent = txt; }); } catch (_) { b.textContent = txt; }
+    }
+  });
+  $("scrim").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeDrawer(); });
+  render();
+}
+</script>
+
+</body>
+</html>
