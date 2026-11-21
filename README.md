@@ -15,7 +15,7 @@ rights, highest resolution.
 | Path | What |
 |---|---|
 | `index.html` | The whole site: search, filters, timeline, edition panel (plain HTML/CSS/JS) |
-| `data/editions.json` | The sample of editions shown on the site |
+| `data/editions.json` | Works, editions and copies shown on the site (compact format v3) |
 
 Cover images load directly from the Internet Archive and the Bavarian State
 Library. The **Viewer** link opens a copy in Universal Viewer where the library
@@ -23,9 +23,11 @@ allows outside viewers to load its IIIF manifests (Internet Archive, MDZ).
 
 ## Status
 
-A prototype with all 45,470 in-scope editions of the inventory so far (59,351
-scanned copies; single periodical issues and known manuscripts left out), from an
-inventory of over 100,000 records. Cards or list view. The inventory, its harvesters and the build scripts are in a separate
+A prototype with all in-scope records of the inventory so far: 29,504 works in
+38,105 editions (62,478 scanned copies; single periodical issues and known
+manuscripts left out). Volumes of one set are one edition; editions are grouped
+into works by uniform titles, a list of canonical works and matching title and
+author in Hebrew or Latin letters. Works or editions, cards or list. The inventory, its harvesters and the build scripts are in a separate
 (private) repository, `hebrew-print-inventory`: `portal/export_sample.py`
 writes the data, `portal/build_site.py` writes this site.
 

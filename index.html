@@ -152,6 +152,19 @@ button, input, select { font: inherit; color: inherit; }
 .tag.gold { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: var(--gold-soft); }
 .empty { padding: 40px 0; color: var(--muted); }
 
+/* work page */
+.wtl { display: block; width: 100%; height: 54px; }
+.etable { display: grid; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.erow { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--line); background: none; text-align: start; width: 100%; cursor: pointer; font-size: 14px; }
+.erow:last-child { border-bottom: 0; }
+.erow:hover { background: var(--sunk); }
+.erow.match { background: var(--accent-soft); }
+.erow .t-he { font-family: var(--f-heb); direction: rtl; text-align: right; font-size: 16px; overflow-wrap: anywhere; }
+.erow .t-ro { font-family: var(--f-display); font-size: 14px; overflow-wrap: anywhere; }
+.erow .sub { color: var(--muted); font-size: 12.5px; }
+.back { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font-size: 14px; text-align: start; }
+.workline { font-size: 13px; color: var(--muted); }
+
 /* view switch */
 .viewbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
@@ -241,6 +254,10 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     <div class="results-head">
       <h2 id="resTitle">Editions</h2>
       <div class="viewbar">
+      <div class="seg" role="group" aria-label="Group by">
+        <button type="button" data-group="works" aria-pressed="true">Works</button>
+        <button type="button" data-group="editions" aria-pressed="false">Editions</button>
+      </div>
       <div class="seg" role="group" aria-label="View">
         <button type="button" data-view="cards" aria-pressed="true">Cards</button>
         <button type="button" data-view="list" aria-pressed="false">List</button>
@@ -248,6 +265,7 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
       <label>Sort <select id="sort">
         <option value="year">Oldest first</option>
         <option value="year-desc">Newest first</option>
+        <option value="editions">Most editions</option>
         <option value="copies">Most copies</option>
         <option value="title">Title</option>
       </select></label>
@@ -257,12 +275,14 @@ footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line)
     <div class="grid" id="grid"></div>
     <button class="more-results" id="more" hidden>Show more</button>
     <footer>
-      This prototype shows <span id="nEd"></span> editions: every in-scope record of the inventory
+      This prototype shows <span id="nEd"></span>: every in-scope record of the inventory
       so far, without single periodical issues and known manuscripts, from over 100,000 records
       harvested from HathiTrust, the Internet Archive, the Bavarian State Library (MDZ),
       UB Frankfurt and the National Library of Israel (harvests still running). Copies of one edition
       are grouped by shared catalogue numbers and by matching title, place and year; these groups are
-      first-pass and may be wrong. The best copy is the one with open IIIF images, open rights and the
+      first-pass and may be wrong. Volumes of one set are one edition. Editions are grouped into works
+      by uniform titles, a list of canonical works (Bible books, Talmud, Mishnah, Zohar, Siddur …)
+      and matching title and author in Hebrew or Latin letters; this grouping is also first-pass. The best copy is the one with open IIIF images, open rights and the
       highest resolution. Cover images load directly from the Internet Archive and the Bavarian
       State Library. Data: CC0 catalogue records of the holding libraries.
       Code and data: <a href="https://github.com/EzraBrand/defus">github.com/EzraBrand/defus</a>.
@@ -309,7 +329,7 @@ function expand(d) {
     const mdz = copies.find(c => c.source === "mdz" && c.id.startsWith("bsb"));
     return {
       n: i + 1, title_he: r[0] || "", title: r[1] || "", author: r[2] || "", place: r[3] || "",
-      place_norm: r[4] || "", year: r[5] || null, lang: r[6] || "",
+      place_norm: r[4] || "", year: r[5] || null, lang: r[6] || "", work: r[10] || 0, year_end: r[11] || null,
       scope: r[7] ? "judaica_other_lang" : "hebrew_script", subjects: r[8] || "", copies,
       thumb: ia ? "https://archive.org/services/img/" + ia.id
         : mdz ? "https://api.digitale-sammlungen.de/iiif/image/v2/" + mdz.id + "_00005/full/,200/0/default.jpg" : "",
@@ -325,7 +345,8 @@ function start(RAW) {
   };
   const LANG = { heb: "Hebrew", yid: "Yiddish", lad: "Ladino", arc: "Aramaic", jrb: "Judeo-Arabic",
     jpr: "Judeo-Persian", eng: "English", ger: "German", lat: "Latin", fre: "French", ita: "Italian",
-    dut: "Dutch", spa: "Spanish", rum: "Romanian", pol: "Polish", rus: "Russian" };
+    dut: "Dutch", spa: "Spanish", rum: "Romanian", pol: "Polish", rus: "Russian", gre: "Greek", grc: "Greek",
+    syr: "Syriac", ara: "Arabic", hun: "Hungarian", cze: "Czech", per: "Persian", und: "Undetermined", mul: "Multiple" };
   const CENT = [[1469, 1599, "15th–16th c.", "--c-early"], [1600, 1699, "17th c.", "--c-17"],
     [1700, 1799, "18th c.", "--c-18"], [1800, 1899, "19th c.", "--c-19"], [1900, 1920, "1900–1920", "--c-20"]];
 
@@ -373,9 +394,35 @@ function start(RAW) {
     ["centF", "Century"], ["placeF", "Place of printing"], ["rightsBest", "Rights (best copy)"], ["copyBand", "Copies"]
   ];
   for (const e of ED) e.centF = e.cent[2];
+
+  // ---- works (v3 data); older data: one work per edition
+  const WR = RAW && RAW.w;
+  const W = WR ? WR.map((w, i) => ({ i, he: w[0] || "", ro: w[1] || "", author: w[2] || "", canon: w[3] || "", eds: [] }))
+    : ED.map((e, i) => ({ i, he: e.title_he, ro: e.title, author: e.author, canon: "", eds: [] }));
+  ED.forEach((e, i) => { if (!WR) e.work = i; (W[e.work] || W[0]).eds.push(e); });
+  for (const w of W) {
+    w.eds.sort((a, b) => (a.year || 9999) - (b.year || 9999));
+    const ys = w.eds.flatMap(e => [e.year, e.year_end]).filter(Boolean);
+    w.year = ys.length ? Math.min(...ys) : null;
+    w.yearEnd = ys.length ? Math.max(...ys) : null;
+    w.copies = w.eds.reduce((n, e) => n + e.copies.length, 0);
+    w.thumbEd = w.eds.find(e => e.thumb);
+    // canonical works (Siddur, Talmud …) have no single author: do not borrow an edition's
+    if (!w.author && !w.canon) w.author = (w.eds.find(e => e.author) || {}).author || "";
+    const pc = {};
+    w.eds.forEach(e => { const p = e.place_norm || e.place; if (p) pc[p] = (pc[p] || 0) + 1; });
+    w.places = Object.entries(pc).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    w.langs = [...new Set(w.eds.map(e => e.langF))];
+    w.srcCounts = {};
+    w.eds.forEach(e => e.copies.forEach(c => w.srcCounts[c.source] = (w.srcCounts[c.source] || 0) + 1));
+    w.cent = (w.eds[0] || {}).cent || [0, 0, "", "--c-20"];
+  }
+  const yrs = w => w.year ? (w.yearEnd && w.yearEnd !== w.year ? `${w.year}–${w.yearEnd}` : `${w.year}`) : "n.d.";
   let savedView = "cards";
   try { savedView = localStorage.getItem("defus-view") === "list" ? "list" : "cards"; } catch (_) {}
-  const state = { q: "", f: {}, range: null, sort: "year", view: savedView, shown: savedView === "list" ? 100 : 24, open: {} };
+  let savedGroup = "works";
+  try { savedGroup = localStorage.getItem("defus-group") === "editions" ? "editions" : "works"; } catch (_) {}
+  const state = { q: "", f: {}, range: null, sort: "year", view: savedView, group: savedGroup, shown: savedView === "list" ? 100 : 24, open: {} };
   FACETS.forEach(([k]) => state.f[k] = new Set());
 
   const $ = id => document.getElementById(id);
@@ -406,7 +453,13 @@ function start(RAW) {
     box.innerHTML = "";
     for (const [k, label] of FACETS) {
       const counts = new Map();
-      for (const e of ED) if (matches(e, k)) for (const v of vals(e, k)) counts.set(v, (counts.get(v) || 0) + 1);
+      if (state.group === "works") {
+        const sets = new Map();
+        for (const e of ED) if (matches(e, k)) for (const v of vals(e, k)) { let st = sets.get(v); if (!st) sets.set(v, st = new Set()); st.add(e.work); }
+        for (const [v, st] of sets) counts.set(v, st.size);
+      } else {
+        for (const e of ED) if (matches(e, k)) for (const v of vals(e, k)) counts.set(v, (counts.get(v) || 0) + 1);
+      }
       for (const v of state.f[k]) if (!counts.has(v)) counts.set(v, 0);
       let entries = [...counts.entries()];
       if (k === "centF") entries.sort((a, b) => CENT.findIndex(c => c[2] === a[0]) - CENT.findIndex(c => c[2] === b[0]));
@@ -479,13 +532,48 @@ function start(RAW) {
       <span class="l-copies">${Object.entries(counts).map(([s, n]) => `<span class="src" title="${SRC[s]}"><i style="background:var(--src-${s})"></i>${SHORT[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}</span></button>`;
   }
   const SHORT = { hathitrust: "HT", internet_archive: "IA", frankfurt: "UBF", mdz: "BSB", nli: "NLI" };
+  const WLIST_HEAD = `<div class="lrow lhead" aria-hidden="true"><span>Years</span><span>Work</span><span>Author</span><span>Places</span><span>Editions</span><span>Copies</span></div>`;
+  function wSpine(w) {
+    const t = w.thumbEd || {};
+    return spine({ title_he: w.he, title: w.ro, thumb: t.thumb || "", cent: w.cent, year: w.year });
+  }
+  function wTitles(w, tag) {
+    const T = tag === "span" ? "span" : "div";
+    return w.he
+      ? `<${T} class="t-he">${esc(w.he)}</${T}>${w.ro ? `<${T} class="t-ro">${esc(w.ro)}</${T}>` : ""}`
+      : `<${T} class="t-ro t-main">${esc(w.ro)}</${T}>`;
+  }
+  function workCard(w, hits) {
+    const ne = w.eds.length;
+    const sub = [w.author, `${ne} edition${ne === 1 ? "" : "s"}, ${yrs(w)}`, w.places.slice(0, 3).join(", "), w.langs.slice(0, 3).join(", ")]
+      .filter(Boolean).map(esc).join(" · ");
+    return `<button class="card" data-w="${w.i}">${wSpine(w)}<div class="meta">${wTitles(w)}<div class="sub">${sub}</div>
+      <div class="copies">${Object.entries(w.srcCounts).map(([s, n]) => `<span class="src"><i style="background:var(--src-${s})"></i>${SRC[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}
+      ${ne > 1 ? `<span class="tag gold">${ne} editions</span>` : ""}${hits < ne ? `<span class="tag">${hits} match</span>` : ""}</div></div></button>`;
+  }
+  function workRow(w, hits) {
+    const ne = w.eds.length;
+    return `<button class="lrow" data-w="${w.i}"><span class="l-year">${yrs(w)}</span>
+      <span class="l-title">${wTitles(w, "span")}</span><span class="l-sub">${esc(w.author)}</span>
+      <span class="l-sub">${esc(w.places.slice(0, 3).join(", "))}</span><span class="l-sub">${ne}${hits < ne ? ` (${hits} match)` : ""}</span>
+      <span class="l-copies">${Object.entries(w.srcCounts).map(([s, n]) => `<span class="src" title="${SRC[s]}"><i style="background:var(--src-${s})"></i>${SHORT[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}</span></button>`;
+  }
+  function sortedWorks(list) {
+    const L = list.slice();
+    if (state.sort === "year") L.sort((a, b) => (a[0].year || 9999) - (b[0].year || 9999));
+    if (state.sort === "year-desc") L.sort((a, b) => (b[0].yearEnd || b[0].year || 0) - (a[0].yearEnd || a[0].year || 0));
+    if (state.sort === "editions") L.sort((a, b) => b[0].eds.length - a[0].eds.length || (a[0].year || 0) - (b[0].year || 0));
+    if (state.sort === "copies") L.sort((a, b) => b[0].copies - a[0].copies);
+    if (state.sort === "title") L.sort((a, b) => (a[0].ro || a[0].he).localeCompare(b[0].ro || b[0].he));
+    return L;
+  }
   const PAGE = { cards: 24, list: 100 };
 
   function sorted(list) {
     const L = list.slice();
     if (state.sort === "year") L.sort((a, b) => (a.year || 9999) - (b.year || 9999));
     if (state.sort === "year-desc") L.sort((a, b) => (b.year || 0) - (a.year || 0));
-    if (state.sort === "copies") L.sort((a, b) => b.copies.length - a.copies.length || (a.year || 0) - (b.year || 0));
+    if (state.sort === "copies" || state.sort === "editions") L.sort((a, b) => b.copies.length - a.copies.length || (a.year || 0) - (b.year || 0));
     if (state.sort === "title") L.sort((a, b) => (a.title || a.title_he).localeCompare(b.title || b.title_he));
     return L;
   }
@@ -496,15 +584,30 @@ function start(RAW) {
     const forTimeline = ED.filter(e => matches(e, "range"));
     renderFacets();
     renderTimeline(forTimeline);
-    const L = sorted(list);
     const listView = state.view === "list";
+    const byWork = state.group === "works";
     $("grid").className = listView ? "list" : "grid";
-    $("grid").innerHTML = L.length
-      ? (listView ? LIST_HEAD : "") + L.slice(0, state.shown).map(listView ? row : card).join("")
-      : `<p class="empty">No editions match. Remove a filter or try another spelling.</p>`;
+    let total;
+    if (byWork) {
+      const m = new Map();
+      for (const e of list) { const w = W[e.work]; let a = m.get(w); if (!a) m.set(w, a = []); a.push(e); }
+      const WL = sortedWorks([...m.entries()]);
+      total = WL.length;
+      $("grid").innerHTML = WL.length
+        ? (listView ? WLIST_HEAD : "") + WL.slice(0, state.shown).map(([w, hits]) => (listView ? workRow : workCard)(w, hits.length)).join("")
+        : `<p class="empty">No works match. Remove a filter or try another spelling.</p>`;
+      $("resTitle").textContent = `${WL.length} work${WL.length === 1 ? "" : "s"}`;
+    } else {
+      const L = sorted(list);
+      total = L.length;
+      $("grid").innerHTML = L.length
+        ? (listView ? LIST_HEAD : "") + L.slice(0, state.shown).map(listView ? row : card).join("")
+        : `<p class="empty">No editions match. Remove a filter or try another spelling.</p>`;
+      $("resTitle").textContent = `${L.length} edition${L.length === 1 ? "" : "s"}`;
+    }
     document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === state.view));
-    $("more").hidden = L.length <= state.shown;
-    $("resTitle").textContent = `${L.length} edition${L.length === 1 ? "" : "s"}`;
+    document.querySelectorAll("[data-group]").forEach(b => b.setAttribute("aria-pressed", b.dataset.group === state.group));
+    $("more").hidden = total <= state.shown;
     const chips = [];
     if (state.q) chips.push(`<button class="chip" data-clear="q">“${esc(state.q)}” ✕</button>`);
     if (state.range) chips.push(`<button class="chip" data-clear="range">${state.range[0]}–${state.range[1]} ✕</button>`);
@@ -513,8 +616,9 @@ function start(RAW) {
     $("chips").innerHTML = chips.join("");
     const copies = list.reduce((s, e) => s + e.copies.length, 0);
     const libs = new Set(list.flatMap(e => e.srcs)).size;
-    $("stats").innerHTML = `<span><b>${list.length}</b> editions</span><span><b>${copies}</b> scanned copies</span><span><b>${libs}</b> libraries</span>`;
-    $("nEd").textContent = ED.length;
+    const nWorks = new Set(list.map(e => e.work)).size;
+    $("stats").innerHTML = `<span><b>${nWorks.toLocaleString()}</b> works</span><span><b>${list.length.toLocaleString()}</b> editions</span><span><b>${copies.toLocaleString()}</b> scanned copies</span><span><b>${libs}</b> libraries</span>`;
+    $("nEd").textContent = `${W.length.toLocaleString()} works in ${ED.length.toLocaleString()} editions`;
   }
 
   // ---- drawer
@@ -532,12 +636,13 @@ function start(RAW) {
         <td class="${rk === "open" ? "rights-open" : rk === "limited" ? "rights-limited" : ""}">${rl}</td>
         <td><div class="links">${c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">Catalogue</a>` : ""}${viewer}${c.manifest ? `<button data-copy="${esc(c.manifest)}">Copy IIIF link</button>` : ""}</div></td></tr>`;
     }).join("");
+    const w = W[e.work];
     const d = $("drawer");
-    d.innerHTML = `<div class="drawer-head">${spine(e)}<div style="min-width:0">${e.title_he ? `<h2 id="dTitle">${esc(e.title_he)}</h2>` : ""}
+    d.innerHTML = `${w && w.eds.length > 1 ? `<button class="back" data-w="${w.i}">← ${esc(w.ro || w.he)}: all ${w.eds.length} editions</button>` : ""}<div class="drawer-head">${spine(e)}<div style="min-width:0">${e.title_he ? `<h2 id="dTitle">${esc(e.title_he)}</h2>` : ""}
         <p class="ro" ${e.title_he ? "" : 'id="dTitle"'}>${esc(e.title)}</p></div><button class="close" id="close" aria-label="Close">✕</button></div>
       <dl class="facts">
         ${e.author ? `<dt>Author</dt><dd>${esc(e.author)}</dd>` : ""}
-        <dt>Printed</dt><dd>${esc([e.place, e.year].filter(Boolean).join(", ") || "Unknown")}${e.place_norm && e.place_norm !== e.place ? ` <span class="sub">(${e.place_norm})</span>` : ""}</dd>
+        <dt>Printed</dt><dd>${esc([e.place, e.year_end ? `${e.year}–${e.year_end}` : e.year].filter(Boolean).join(", ") || "Unknown")}${e.place_norm && e.place_norm !== e.place ? ` <span class="sub">(${e.place_norm})</span>` : ""}</dd>
         <dt>Language</dt><dd>${esc(e.langF)}</dd>
         <dt>Collection</dt><dd>${esc(e.scopeF)}</dd>
         ${e.subjects ? `<dt>Subjects</dt><dd>${esc(e.subjects)}</dd>` : ""}
@@ -546,6 +651,37 @@ function start(RAW) {
       <div><p class="section-label">${e.copies.length} known ${e.copies.length === 1 ? "copy" : "copies"}</p>
       <div class="copies-table"><table><thead><tr><th>Library</th><th>Pages</th><th>ppi</th><th>Rights</th><th>Open</th></tr></thead><tbody>${rows}</tbody></table></div></div>
       <p class="note">The best copy has open IIIF images, open rights and the highest resolution. HathiTrust page images are behind a bot check, so a HathiTrust copy is chosen only when no other copy exists. The Viewer link (Universal Viewer) is offered where the library lets outside viewers load its images (Internet Archive, Bavarian State Library); for other copies use the library's own page. Page counts come from the catalogue or the scan; ppi from the Internet Archive.</p>`;
+    d.hidden = false; $("scrim").hidden = false;
+    $("close").focus();
+  }
+  function openWork(i) {
+    const w = W[i]; if (!w) return;
+    const filtered = state.q || state.range || FACETS.some(([k]) => state.f[k].size);
+    const lo = 1460, hi = 1925, X = y => 6 + (y - lo) / (hi - lo) * 888;
+    let tl = `<line x1="6" x2="894" y1="30" y2="30" stroke="var(--line)"></line>`;
+    for (let y = 1500; y <= 1900; y += 100) tl += `<line x1="${X(y)}" x2="${X(y)}" y1="25" y2="35" stroke="var(--line)"></line><text x="${X(y)}" y="50" font-size="11" text-anchor="middle" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${y}</text>`;
+    w.eds.forEach(e => { if (e.year) tl += `<circle cx="${X(e.year)}" cy="30" r="5" fill="${filtered && matches(e) ? "var(--accent)" : "var(--muted)"}" opacity=".75"><title>${e.year} ${esc(e.place_norm || e.place)}</title></circle>`; });
+    const rows = w.eds.map(e => {
+      const counts = {};
+      e.copies.forEach(c => counts[c.source] = (counts[c.source] || 0) + 1);
+      return `<button class="erow ${filtered && matches(e) ? "match" : ""}" data-n="${e.n}"><span class="l-year">${e.year_end ? `${e.year}–${e.year_end}` : (e.year || "n.d.")}</span>
+        <span style="min-width:0">${e.title_he ? `<div class="t-he">${esc(e.title_he)}</div>` : ""}${e.title && e.title !== e.title_he ? `<div class="t-ro">${esc(e.title)}</div>` : ""}<div class="sub">${esc([e.place, e.langF].filter(Boolean).join(" · "))}</div></span>
+        <span class="l-copies">${Object.entries(counts).map(([s, n]) => `<span class="src" title="${SRC[s]}"><i style="background:var(--src-${s})"></i>${SHORT[s]}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}</span></button>`;
+    }).join("");
+    const d = $("drawer");
+    d.innerHTML = `<div class="drawer-head">${wSpine(w)}<div style="min-width:0">${w.he ? `<h2 id="dTitle">${esc(w.he)}</h2>` : ""}
+        <p class="ro" ${w.he ? "" : 'id="dTitle"'}>${esc(w.ro)}</p></div><button class="close" id="close" aria-label="Close">✕</button></div>
+      <dl class="facts">
+        ${w.author ? `<dt>Author</dt><dd>${esc(w.author)}</dd>` : ""}
+        <dt>Editions</dt><dd>${w.eds.length}, ${yrs(w)}</dd>
+        <dt>Copies</dt><dd>${w.copies} scanned copies in ${Object.keys(w.srcCounts).length} ${Object.keys(w.srcCounts).length === 1 ? "library" : "libraries"}</dd>
+        ${w.places.length ? `<dt>Places</dt><dd>${esc(w.places.slice(0, 8).join(", "))}${w.places.length > 8 ? " …" : ""}</dd>` : ""}
+        <dt>Languages</dt><dd>${esc(w.langs.join(", "))}</dd>
+      </dl>
+      <div><p class="section-label">Editions by year${filtered ? " (blue: matches your filters)" : ""}</p>
+      <svg class="wtl" viewBox="0 0 900 54" role="img" aria-label="Editions of this work by year">${tl}</svg></div>
+      <div><p class="section-label">${w.eds.length} edition${w.eds.length === 1 ? "" : "s"}</p><div class="etable">${rows}</div></div>
+      <p class="note">Editions are grouped into works by uniform titles, a list of canonical works and matching title and author. The grouping is first-pass: a work may still be split, or hold an edition that belongs elsewhere.</p>`;
     d.hidden = false; $("scrim").hidden = false;
     $("close").focus();
   }
@@ -562,6 +698,12 @@ function start(RAW) {
   document.addEventListener("click", ev => {
     const b = ev.target.closest("button, g.bar");
     if (!b) { if (ev.target === $("scrim")) closeDrawer(); return; }
+    if (b.dataset.group) {
+      state.group = b.dataset.group; state.shown = PAGE[state.view];
+      try { localStorage.setItem("defus-group", state.group); } catch (_) {}
+      render(); return;
+    }
+    if (b.dataset.w !== undefined) { openWork(+b.dataset.w); return; }
     if (b.dataset.view) {
       state.view = b.dataset.view; state.shown = PAGE[state.view];
       try { localStorage.setItem("defus-view", state.view); } catch (_) {}
