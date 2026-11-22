@@ -11,5 +11,9 @@
   "method": "Harvested from library catalogues (HathiTrust, Internet Archive, Munich, Frankfurt and others); editions grouped into works. The scans stay with the libraries; rights are per copy.",
   "cite": "Defus: open scans of printed Hebrew books and Judaica, ed. Ezra Brand. Open Seforim",
   "url": "https://openseforim.org/defus/",
-  "repo": "https://github.com/openseforim/defus"
+  "repo": "https://github.com/openseforim/defus",
+  "licence": {
+    "name": "CC BY-SA 4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+  }
 }

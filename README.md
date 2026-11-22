@@ -42,3 +42,7 @@ have no cover (HathiTrust images are behind a bot check).
 The catalogue data comes from the holding libraries' open metadata (CC0 for MDZ,
 UB Frankfurt and HathiTrust; Internet Archive item metadata; NLI Open Library API).
 The scans stay with the libraries; rights are per copy and shown on the site.
+
+## Licence
+
+The catalogue data as compiled here (works, editions, grouping) and the site: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (see `LICENSE`). The source metadata is open (CC0 for MDZ, UB Frankfurt and HathiTrust; Internet Archive item metadata; NLI Open Library API). The scans stay with the libraries; rights are per copy.
