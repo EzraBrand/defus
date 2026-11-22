@@ -23,8 +23,8 @@ allows outside viewers to load its IIIF manifests (Internet Archive, MDZ).
 
 ## Status
 
-A prototype with all in-scope records of the inventory so far: 29,441 works in
-38,078 editions (62,478 scanned copies; single periodical issues and known
+A prototype with all in-scope records of the inventory so far (22-Nov-2026): 31,656 works in
+41,506 editions (67,632 scanned copies; single periodical issues and known
 manuscripts left out). Volumes of one set are one edition; editions are grouped
 into works by uniform titles, a list of canonical works and matching title and
 author in Hebrew or Latin letters, ignoring plene/defective spelling
