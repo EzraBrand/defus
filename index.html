@@ -341,7 +341,7 @@ function start(RAW) {
   const ED = Array.isArray(RAW) ? RAW : expand(RAW);
   const SRC = {
     hathitrust: "HathiTrust", internet_archive: "Internet Archive", frankfurt: "UB Frankfurt",
-    mdz: "Bavarian State Library", nli: "National Library of Israel"
+    mdz: "Bavarian State Library (MDZ)", nli: "National Library of Israel"
   };
   const LANG = { heb: "Hebrew", yid: "Yiddish", lad: "Ladino", arc: "Aramaic", jrb: "Judeo-Arabic",
     jpr: "Judeo-Persian", eng: "English", ger: "German", lat: "Latin", fre: "French", ita: "Italian",
@@ -652,7 +652,7 @@ function start(RAW) {
       </dl>
       <div><p class="section-label">${e.copies.length} known ${e.copies.length === 1 ? "copy" : "copies"}</p>
       <div class="copies-table"><table><thead><tr><th>Library</th><th>Pages</th><th>ppi</th><th>Rights</th><th>Open</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-      <p class="note">The best copy has open IIIF images, open rights and the highest resolution. HathiTrust page images are behind a bot check, so a HathiTrust copy is chosen only when no other copy exists. The Viewer link (Universal Viewer) is offered where the library lets outside viewers load its images (Internet Archive, Bavarian State Library); for other copies use the library's own page. Page counts come from the catalogue or the scan; ppi from the Internet Archive.</p>`;
+      <p class="note">The best copy has open IIIF images, open rights and the highest resolution. HathiTrust page images are behind a bot check, so a HathiTrust copy is chosen only when no other copy exists. The Viewer link (Universal Viewer) is offered where the library lets outside viewers load its images (Internet Archive, Bavarian State Library (MDZ)); for other copies use the library's own page. Page counts come from the catalogue or the scan; ppi from the Internet Archive.</p>`;
     d.hidden = false; $("scrim").hidden = false;
     $("close").focus();
   }
