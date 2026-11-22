@@ -1,0 +1,28 @@
+{
+  "title": "Defus: open scans of printed Hebrew books",
+  "upload_type": "publication",
+  "publication_type": "other",
+  "description": "<p>Open scans of printed Hebrew books and Judaica, 1469–1920, gathered from the libraries that hold them.</p><p>Harvested from library catalogues (HathiTrust, Internet Archive, Munich, Frankfurt and others); editions grouped into works. The scans stay with the libraries; rights are per copy.</p><p>Read online: <a href=\"https://openseforim.org/defus/\">https://openseforim.org/defus/</a></p>",
+  "creators": [
+    {
+      "name": "Brand, Ezra"
+    }
+  ],
+  "license": "cc-by-sa-4.0",
+  "access_right": "open",
+  "keywords": [
+    "Judaica",
+    "Hebrew",
+    "digital humanities",
+    "translation",
+    "digital edition"
+  ],
+  "language": "eng",
+  "related_identifiers": [
+    {
+      "identifier": "https://openseforim.org/defus/",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-other"
+    }
+  ]
+}
