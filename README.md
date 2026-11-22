@@ -3,7 +3,7 @@
 A prototype portal for discovering open scans of printed Hebrew books and Judaica,
 1469–1920, gathered from the libraries that hold them.
 
-**Site:** https://ezrabrand.github.io/defus/
+**Site:** https://openseforim.org/defus/
 
 Each entry is an *edition*. It lists every known scanned copy (HathiTrust, Internet
 Archive, Bavarian State Library / MDZ, UB Frankfurt, National Library of Israel),
