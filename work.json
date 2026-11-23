@@ -12,6 +12,7 @@
   "cite": "Defus: open scans of printed Hebrew books and Judaica, ed. Ezra Brand. Open Seforim",
   "url": "https://openseforim.org/defus/",
   "repo": "https://github.com/openseforim/defus",
+  "doi": "10.5281/zenodo.24458153",
   "licence": {
     "name": "CC BY-SA 4.0",
     "url": "https://creativecommons.org/licenses/by-sa/4.0/"

@@ -1,5 +1,7 @@
 # Defus · דפוס
 
+Cite as: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24458153.svg)](https://doi.org/10.5281/zenodo.24458153) (Zenodo; this DOI always points to the newest release)
+
 A prototype portal for discovering open scans of printed Hebrew books and Judaica,
 1469–1920, gathered from the libraries that hold them.
 
